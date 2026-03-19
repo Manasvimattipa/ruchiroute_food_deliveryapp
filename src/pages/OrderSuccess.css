@@ -1,0 +1,115 @@
+.order-success-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #F7F7F7;
+  font-family: 'Inter', sans-serif;
+}
+
+.order-success-container {
+  background-color: #FFFFFF;
+  padding: 4rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: center;
+  max-width: 480px;
+  width: 90%;
+  border: 1px solid #EEEEEE;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.success-icon-wrapper {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+.order-success-container h1 {
+  color: var(--text-primary);
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.order-success-container p {
+  color: #686b78;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+.delivery-estimate {
+  background-color: #f9f5f0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  border: 1px dashed var(--accent-secondary);
+}
+
+.delivery-estimate h4 {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.delivery-time {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+  margin-top: 5px;
+}
+
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.track-btn {
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(125, 78, 58, 0.2);
+}
+
+.track-btn:hover {
+  background-color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(125, 78, 58, 0.3);
+}
+
+.home-btn {
+  background: none;
+  border: 1px solid #d4d5d9;
+  color: #282c3f;
+  padding: 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.home-btn:hover {
+  background-color: #f9f9f9;
+}
