@@ -35,9 +35,9 @@ const Login = () => {
       setLoading(true);
       setError('');
       await resendEmailVerificationEmail(unverifiedUser);
-      setSuccessMessage('Verification email sent again. Please check your inbox.');
+      setSuccessMessage('Verification email sent again! Please check your inbox.');
       
-      // Now that we've sent it, we can safely log out
+      // Now that we've sent it, we can safely log out the unverified session
       await logout();
       setUnverifiedUser(null);
     } catch (err) {
@@ -46,6 +46,15 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // Logout if user leaves before verifying
+  useEffect(() => {
+    return () => {
+      if (unverifiedUser) {
+        logout();
+      }
+    };
+  }, [unverifiedUser]);
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -57,7 +66,6 @@ const Login = () => {
       setSuccessMessage('');
       await forgotPassword(resetEmail);
       setSuccessMessage('Password reset email sent. Please check your inbox.');
-      // Keep forgot password view open so user can see the message
     } catch (err) {
       console.error("Forgot password error:", err);
       if (err.code === 'auth/user-not-found') {
@@ -81,16 +89,11 @@ const Login = () => {
       const userCredential = await login(email, password);
       const user = userCredential.user;
       
-      // VERY IMPORTANT: Reload the user
-      await user.reload();
-      console.log("Post-reload emailVerified status: ", user.emailVerified);
-      
       // Strict check against the refreshed user object
       if (!user.emailVerified) {
         setError('Please verify your email before logging in.');
         setUnverifiedUser(user);
-        // Do not allow login
-        await logout();
+        // DO NOT logout yet, so resend works
         setLoading(false);
         return;
       }
@@ -98,10 +101,11 @@ const Login = () => {
       navigate('/welcome');
     } catch (err) {
       console.error("Login error:", err);
+      setLoading(false); // Ensure loading is stopped on error
       if (err.code === 'auth/user-not-found') {
         setError("Account not found. Please sign up first.");
-      } else if (err.code === 'auth/wrong-password') {
-        setError("Incorrect password.");
+      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setError("Incorrect email or password.");
       } else if (err.code === 'auth/invalid-email') {
         setError("Invalid email format.");
       } else if (err.code === 'auth/too-many-requests') {
@@ -110,7 +114,8 @@ const Login = () => {
         setError('Failed to log in: ' + err.message);
       }
     } finally {
-      setLoading(false);
+      // setLoading(false) is called in appropriate paths above 
+      // to avoid weird transitions with navigate
     }
   };
 
@@ -158,60 +163,87 @@ const Login = () => {
           )}
           
           {!showForgotPassword ? (
-            <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  name="user-email"
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  autoComplete="new-email"
-                />
-              </div>
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label htmlFor="password">Password</label>
-                  <button 
-                    type="button"
-                    onClick={() => {
-                        setShowForgotPassword(true);
-                        setResetEmail(email); // Pre-fill reset email if they already typed it
-                        setError('');
-                        setSuccessMessage('');
-                    }}
-                    className="auth-link-button"
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#e67e22',
-                      fontSize: '0.8rem',
-                      cursor: 'pointer',
-                      padding: '0',
-                      marginBottom: '0.5rem'
-                    }}
-                  >
-                    Forgot Password?
-                  </button>
+            <>
+              <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    name="user-email"
+                    required 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    autoComplete="new-email"
+                  />
                 </div>
-                <input 
-                  type="password" 
-                  id="password" 
-                  name="user-password"
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  autoComplete="new-password"
-                />
-              </div>
-              <button disabled={loading} type="submit" className="auth-button">
-                {loading ? 'Logging in...' : 'Log In'}
-              </button>
-            </form>
+                <div className="form-group">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label htmlFor="password">Password</label>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                          setShowForgotPassword(true);
+                          setResetEmail(email);
+                          setError('');
+                          setSuccessMessage('');
+                      }}
+                      className="auth-link-button"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#e67e22',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        padding: '0',
+                        marginBottom: '0.5rem'
+                      }}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <input 
+                    type="password" 
+                    id="password" 
+                    name="user-password"
+                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    autoComplete="new-password"
+                  />
+                </div>
+                <button disabled={loading} type="submit" className="auth-button">
+                  {loading ? 'Logging in...' : 'Log In'}
+                </button>
+              </form>
+              
+              {!unverifiedUser && (
+                <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                  <p style={{ fontSize: '0.85rem', color: '#666' }}>
+                    Didn't receive verification email? 
+                    <button 
+                      onClick={() => {
+                        setError('To resend verification, please log in with your credentials above.');
+                        setSuccessMessage('');
+                      }}
+                      className="auth-link-button"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#e67e22',
+                        marginLeft: '5px',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      Resend now
+                    </button>
+                  </p>
+                </div>
+              )}
+            </>
           ) : (
             <form onSubmit={handleForgotPassword} className="auth-form">
               <div className="form-group">

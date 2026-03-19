@@ -12,7 +12,8 @@ const Register = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { register } = useAuth();
+  const [unverifiedUser, setUnverifiedUser] = useState(null);
+  const { register, resendEmailVerificationEmail } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,6 +25,7 @@ const Register = () => {
       setConfirmPassword('');
       setError('');
       setMessage('');
+      setUnverifiedUser(null);
     }, 100);
     return () => clearTimeout(timer);
   }, []);
@@ -34,6 +36,20 @@ const Register = () => {
       .match(
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
+  };
+
+  const handleResend = async () => {
+    if (!unverifiedUser) return;
+    try {
+      setLoading(true);
+      setError('');
+      await resendEmailVerificationEmail(unverifiedUser);
+      setMessage('Verification email sent again! Please check your inbox.');
+    } catch (err) {
+      setError('Failed to resend verification email: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -51,7 +67,8 @@ const Register = () => {
       setError('');
       setMessage('');
       setLoading(true);
-      await register(email, password, name);
+      const userCredential = await register(email, password, name);
+      setUnverifiedUser(userCredential.user);
       setMessage('Verification email sent! Please verify your email before logging in.');
     } catch (err) {
       console.error("Registration error:", err);
@@ -93,6 +110,26 @@ const Register = () => {
             fontSize: '0.9rem',
             border: '1px solid #c3e6cb'
           }}>{message}</div>}
+
+          {unverifiedUser && message && (
+            <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+              <button 
+                onClick={handleResend} 
+                disabled={loading}
+                className="auth-link-button"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#e67e22',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                {loading ? 'Sending...' : 'Didn\'t receive email? Resend'}
+              </button>
+            </div>
+          )}
           
           {!message ? (
             <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
@@ -153,12 +190,13 @@ const Register = () => {
             </button>
           </form>
           ) : (
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
               <Link to="/login" className="auth-button" style={{ display: 'block', textDecoration: 'none' }}>
                 Go to Login
               </Link>
             </div>
           )}
+
           
           <div className="auth-footer">
             Already have an account? <Link to="/login">Log In</Link>

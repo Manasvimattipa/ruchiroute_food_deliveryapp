@@ -33,21 +33,8 @@ export const AuthProvider = ({ children }) => {
       userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName });
       
-      // Send verification email
-      try {
-        await sendEmailVerification(userCredential.user);
-      } catch (verificationError) {
-        // If verification email fails, delete the user to keep Auth clean
-        console.error("Verification email failed, deleting user:", verificationError);
-        try {
-          await deleteUser(userCredential.user);
-        } catch (deleteError) {
-          console.error("Cleanup deletion failed:", deleteError);
-        }
-        throw new Error("verification-email-failed");
-      }
-      
-      // Create the user document in Firestore
+      // Create the user document in Firestore FIRST
+      // This ensures they are "in the database" even if email fails
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         uid: userCredential.user.uid,
         email: userCredential.user.email,
@@ -56,11 +43,17 @@ export const AuthProvider = ({ children }) => {
         role: 'user'
       });
 
+      // Then try to send verification email
+      try {
+        await sendEmailVerification(userCredential.user);
+      } catch (verificationError) {
+        console.error("Initial verification email failed:", verificationError);
+        // We don't delete the user anymore, just let them resend later
+        // or let the registration finish so they can see the "Resend" button.
+      }
+      
       return userCredential;
     } catch (error) {
-      // If we failed at the Firestore step or verification step, 
-      // the user might still exist in Auth. 
-      // For simplicity here, we just throw the error.
       throw error;
     }
   };
