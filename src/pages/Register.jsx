@@ -13,7 +13,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   
   const [unverifiedUser, setUnverifiedUser] = useState(null);
-  const { register, resendEmailVerificationEmail } = useAuth();
+  const { register, resendEmailVerificationEmail, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +29,31 @@ const Register = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // Polling for verification status
+  useEffect(() => {
+    let interval;
+    if (unverifiedUser) {
+      interval = setInterval(async () => {
+        try {
+          await unverifiedUser.reload();
+          if (unverifiedUser.emailVerified) {
+            clearInterval(interval);
+            // Verification successful!
+            navigate('/welcome');
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+      if (unverifiedUser) {
+        logout(); // Cleanup unverified session if they leave
+      }
+    };
+  }, [unverifiedUser, navigate, logout]);
 
   const validateEmail = (email) => {
     return String(email)

@@ -61,8 +61,8 @@ export const AuthProvider = ({ children }) => {
   // Log in
   const login = async (email, password) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    // Reload to ensure verification status is up to date
     await userCredential.user.reload();
-    await userCredential.user.getIdToken(true);
     return userCredential;
   };
 

@@ -29,32 +29,71 @@ const Login = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleResend = async () => {
-    if (!unverifiedUser) return;
+  const handleManualResend = async () => {
+    if (!email || !password) {
+      setError('Please enter your email and password above first to resend verification.');
+      return;
+    }
+    
     try {
       setLoading(true);
       setError('');
-      await resendEmailVerificationEmail(unverifiedUser);
-      setSuccessMessage('Verification email sent again! Please check your inbox.');
+      setSuccessMessage('');
       
-      // Now that we've sent it, we can safely log out the unverified session
-      await logout();
-      setUnverifiedUser(null);
+      const userCredential = await login(email, password);
+      const user = userCredential.user;
+      
+      if (user.emailVerified) {
+        setSuccessMessage('Your email is already verified! You are now being logged in.');
+        navigate('/welcome');
+        return;
+      }
+      
+      await resendEmailVerificationEmail(user);
+      setSuccessMessage('Verification email sent! Please check your inbox.');
+      setUnverifiedUser(user);
     } catch (err) {
-      setError('Failed to resend verification email: ' + err.message);
+      console.error("Manual resend error:", err);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        setError("Invalid credentials. Please check your email and password.");
+      } else {
+        setError('Failed to resend: ' + err.message);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Logout if user leaves before verifying
+  // Logout if user leaves before verifying, but ALSO poll for status updates
   useEffect(() => {
+    let interval;
+    if (unverifiedUser) {
+      // Poll every 3 seconds to see if they've verified
+      interval = setInterval(async () => {
+        try {
+          await unverifiedUser.reload();
+          if (unverifiedUser.emailVerified) {
+            clearInterval(interval);
+            setSuccessMessage('');
+            setError('');
+            // Success! Send them to the welcome page
+            navigate('/welcome');
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      }, 3000);
+    }
+
     return () => {
+      if (interval) clearInterval(interval);
       if (unverifiedUser) {
+        // Technically they might still be logged in if they just close the tab,
+        // but this handles internal navigation.
         logout();
       }
     };
-  }, [unverifiedUser]);
+  }, [unverifiedUser, navigate, logout]);
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -86,14 +125,14 @@ const Login = () => {
       setError('');
       setSuccessMessage('');
       setLoading(true);
+      
       const userCredential = await login(email, password);
       const user = userCredential.user;
       
-      // Strict check against the refreshed user object
+      // login() already calls user.reload() internally, but let's be double sure
       if (!user.emailVerified) {
         setError('Please verify your email before logging in.');
         setUnverifiedUser(user);
-        // DO NOT logout yet, so resend works
         setLoading(false);
         return;
       }
@@ -101,11 +140,11 @@ const Login = () => {
       navigate('/welcome');
     } catch (err) {
       console.error("Login error:", err);
-      setLoading(false); // Ensure loading is stopped on error
-      if (err.code === 'auth/user-not-found') {
-        setError("Account not found. Please sign up first.");
-      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      setLoading(false);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
         setError("Incorrect email or password.");
+      } else if (err.code === 'auth/wrong-password') {
+        setError("Incorrect password.");
       } else if (err.code === 'auth/invalid-email') {
         setError("Invalid email format.");
       } else if (err.code === 'auth/too-many-requests') {
@@ -113,9 +152,6 @@ const Login = () => {
       } else {
         setError('Failed to log in: ' + err.message);
       }
-    } finally {
-      // setLoading(false) is called in appropriate paths above 
-      // to avoid weird transitions with navigate
     }
   };
 
@@ -224,10 +260,8 @@ const Login = () => {
                   <p style={{ fontSize: '0.85rem', color: '#666' }}>
                     Didn't receive verification email? 
                     <button 
-                      onClick={() => {
-                        setError('To resend verification, please log in with your credentials above.');
-                        setSuccessMessage('');
-                      }}
+                      onClick={handleManualResend}
+                      disabled={loading}
                       className="auth-link-button"
                       style={{
                         background: 'none',
@@ -238,7 +272,7 @@ const Login = () => {
                         textDecoration: 'underline'
                       }}
                     >
-                      Resend now
+                      {loading ? 'Processing...' : 'Resend now'}
                     </button>
                   </p>
                 </div>
