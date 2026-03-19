@@ -1,0 +1,232 @@
+/* Admin Portal Shared Components - Shopify/Swiggy Style */
+
+:root {
+  --admin-bg: #F7F7F7;
+  --admin-card-bg: #FFFFFF;
+  --admin-accent: #8B5E3C;
+  --admin-text: #2C3E50;
+  --admin-text-light: #7F8C8D;
+  --admin-border: #E0E0E0;
+  --admin-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.admin-header {
+  margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--admin-text);
+  margin-bottom: 0.5rem;
+}
+
+.admin-header p {
+  color: var(--admin-text-light);
+  font-size: 1.1rem;
+}
+
+.admin-flex-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-btn-main {
+  background: var(--admin-accent);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 15px rgba(139, 94, 60, 0.2);
+}
+
+.add-btn-main:hover {
+  background: #6D4C30;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(139, 94, 60, 0.3);
+}
+
+.admin-table-container {
+  background: var(--admin-card-bg);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  background: #FBFAF9;
+  text-align: left;
+  padding: 1.25rem 1.5rem;
+  font-weight: 700;
+  color: var(--admin-text-light);
+  border-bottom: 1px solid var(--admin-border);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  font-size: 1rem;
+}
+
+.admin-table tr:hover {
+  background: #F9F9F9;
+}
+
+.table-item-info strong {
+  display: block;
+  font-weight: 700;
+}
+
+.table-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.edit-action, .delete-action {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.edit-action:hover {
+  background: var(--admin-accent);
+  color: white;
+  border-color: var(--admin-accent);
+}
+
+.delete-action:hover {
+  background: #FFF5F5;
+  color: #E74C3C;
+  border-color: #E74C3C;
+}
+
+/* Modals */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+.admin-modal {
+  background: white;
+  width: 100%;
+  max-width: 750px;
+  border-radius: 30px;
+  padding: 3rem;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+  animation: modalSlide 0.3s ease-out;
+}
+
+@keyframes modalSlide {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.admin-modal h2 {
+  margin-bottom: 2.5rem;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--admin-text);
+}
+
+.admin-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.admin-form .form-group label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--admin-text);
+}
+
+.admin-form .form-group input, 
+.admin-form .form-group select, 
+.admin-form .form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--admin-border);
+  background: #F9F9F9;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.admin-form .form-group input:focus {
+  border-color: var(--admin-accent);
+  outline: none;
+  background: white;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+}
+
+.cancel-btn {
+  padding: 14px 28px;
+  background: white;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #F5F5F5;
+}
+
+.save-btn {
+  padding: 14px 28px;
+  background: var(--admin-accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.save-btn:hover {
+  background: #6D4C30;
+}
+
+.admin-loading {
+  text-align: center;
+  padding: 4rem;
+  font-weight: 600;
+  color: var(--admin-text-light);
+  font-size: 1.2rem;
+}
+
