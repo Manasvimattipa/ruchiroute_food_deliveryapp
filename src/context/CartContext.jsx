@@ -59,13 +59,14 @@ export const CartProvider = ({ children }) => {
 
   const updateQuantity = (itemId, amount) => {
     setCart((prevCart) => {
-      return prevCart.map((item) => {
+      const updatedCart = prevCart.map((item) => {
         if (item.id === itemId) {
-          const newQuantity = Math.max(1, item.quantity + amount);
-          return { ...item, quantity: newQuantity };
+          return { ...item, quantity: item.quantity + amount };
         }
         return item;
       });
+      // Remove any items that dropped to 0 or less
+      return updatedCart.filter(item => item.quantity > 0);
     });
   };
 

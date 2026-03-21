@@ -128,8 +128,10 @@ const RestaurantDetail = () => {
           <button className="cart-btn" onClick={() => navigate('/cart')}>
             🛒 Cart <span className="cart-badge">{totalItems}</span>
           </button>
-          <div className="profile-section" onClick={() => navigate('/profile')}>
-            <img src={userProfile?.profilePhotoUrl || userProfile?.photoURL || ''} alt="Profile" className="nav-avatar" />
+          <div className="nav-profile-wrapper" onClick={() => navigate('/profile')}>
+            <div className="nav-avatar-circle">
+              {(userProfile?.displayName || 'U').charAt(0).toUpperCase()}
+            </div>
             <span className="nav-username">{userProfile?.displayName || 'User'}</span>
           </div>
         </div>
@@ -177,7 +179,9 @@ const RestaurantDetail = () => {
                             <div className="menu-qty-wrapper-inline">
                               {qty > 0 ? (
                                 <div className="qty-control">
-                                  <button onClick={() => handleUpdateQuantity(item, -1)}>-</button>
+                                  <button onClick={() => handleUpdateQuantity(item, -1)}>
+                                    {qty === 1 ? '🗑️' : '-'}
+                                  </button>
                                   <span>{qty}</span>
                                   <button onClick={() => handleUpdateQuantity(item, 1)}>+</button>
                                 </div>

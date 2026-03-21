@@ -46,7 +46,9 @@ const Cart = () => {
                 </div>
                 <div className="cart-item-actions">
                   <div className="quantity-controls">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="qty-btn">-</button>
+                    <button onClick={() => updateQuantity(item.id, -1)} className="qty-btn">
+                      {item.quantity === 1 ? '🗑️' : '-'}
+                    </button>
                     <span className="qty-value">{item.quantity}</span>
                     <button onClick={() => updateQuantity(item.id, 1)} className="qty-btn">+</button>
                   </div>

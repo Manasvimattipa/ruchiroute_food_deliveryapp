@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { storage, db } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, updateDoc } from 'firebase/firestore';
 import './Profile.css';
 
@@ -18,8 +17,6 @@ const Profile = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  const [uploading, setUploading] = useState(false);
-  const [photoKey, setPhotoKey] = useState(Date.now());
 
   useEffect(() => {
     if (userProfile) {
@@ -36,54 +33,9 @@ const Profile = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handlePhotoUpload = async (e) => {
-    const inputTarget = e.target;
-    const file = inputTarget.files[0];
-    if (!file) return;
-
-    // Allow only image files (jpg, png, jpeg)
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    if (!allowedTypes.includes(file.type)) {
-      setMessage({ type: 'error', text: 'Please upload only image files (JPG, PNG, JPEG).' });
-      return;
-    }
-
-    // Check file size (limit 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'Photo must be less than 2MB' });
-      return;
-    }
-
-    setUploading(true);
-    setMessage({ type: '', text: 'Uploading photo...' });
-    
-    try {
-      console.log("Starting upload for user:", currentUser.uid);
-      const storageRef = ref(storage, `profilePhotos/${currentUser.uid}`);
-      
-      console.log("Uploading bytes...");
-      const uploadResult = await uploadBytes(storageRef, file);
-      console.log("Upload finished:", uploadResult);
-      
-      console.log("Getting download URL...");
-      const downloadURL = await getDownloadURL(storageRef);
-      console.log("Download URL obtained:", downloadURL);
-      
-      console.log("Updating Firestore profile...");
-      await updateUserProfile({ profilePhotoUrl: downloadURL });
-      
-      setPhotoKey(Date.now());
-      setMessage({ type: 'success', text: 'Success! Your new photo is now live.' });
-      console.log("Profile update complete.");
-      
-      // Clear the input so the same file can be selected again
-      if (inputTarget) inputTarget.value = null;
-    } catch (error) {
-      console.error("CRITICAL UPLOAD ERROR:", error);
-      setMessage({ type: 'error', text: `Upload failed: ${error.message || 'Network error'}. Please check your connection.` });
-    } finally {
-      setTimeout(() => setUploading(false), 500); // Small delay to ensure state propagates
-    }
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   const handleSubmit = async (e) => {
@@ -111,20 +63,10 @@ const Profile = () => {
 
         <div className="profile-card">
           <div className="profile-photo-section">
-            <div className="avatar-wrapper">
-              {uploading ? (
-                <div className="avatar-loader">...</div>
-              ) : (
-                <img 
-                  src={userProfile?.profilePhotoUrl ? `${userProfile.profilePhotoUrl}&t=${photoKey}` : 'https://via.placeholder.com/150?text=Avatar'} 
-                  alt="Profile" 
-                  className="profile-avatar"
-                />
-              )}
-              <label className="photo-upload-label">
-                <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
-                <span>📷 Change Photo</span>
-              </label>
+            <div className="avatar-wrapper default-avatar">
+              <div className="profile-avatar-initials">
+                {getInitials(userProfile?.displayName || currentUser?.displayName)}
+              </div>
             </div>
           </div>
 

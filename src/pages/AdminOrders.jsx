@@ -76,7 +76,7 @@ const AdminOrders = () => {
                   <td><strong>#{o.id.slice(-6).toUpperCase()}</strong></td>
                   <td>{o.userName || 'N/A'}</td>
                   <td>{o.restaurantName || 'N/A'}</td>
-                  <td>{o.items?.length || 0} items</td>
+                  <td>{o.itemsOrdered?.length || o.items?.length || 0} items</td>
                   <td>₹{o.totalAmount?.toFixed(2)}</td>
                   <td>{o.paymentMethod || 'COD'}</td>
                   <td>

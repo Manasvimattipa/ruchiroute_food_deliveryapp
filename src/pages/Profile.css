@@ -1,5 +1,5 @@
 .profile-page {
-  background-image: url('../assets/bakery_bg.png');
+  background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('../assets/profile_bg.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -29,12 +29,13 @@
 }
 
 .profile-card {
-  background: var(--card-bg);
+  background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   padding: 40px;
   border-radius: 30px;
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .profile-photo-section {
@@ -54,50 +55,25 @@
   transform: scale(1.05);
 }
 
-.profile-avatar {
-  width: 100%;
-  height: 100%;
+.avatar-wrapper.default-avatar {
+  background: linear-gradient(135deg, #FEFAE0, #E6C9A8);
   border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid var(--bg-primary);
-  box-shadow: 0 5px 15px rgba(125, 78, 58, 0.1);
-}
-
-.avatar-loader {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: var(--bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-primary);
-  font-weight: bold;
+  box-shadow: 0 15px 35px rgba(212, 163, 115, 0.2);
+  border: 6px solid rgba(255, 255, 255, 0.8);
+  width: 150px;
+  height: 150px;
 }
 
-.photo-upload-label {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%) translateY(50%);
-  background: var(--accent-primary);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(125, 78, 58, 0.2);
-  transition: all 0.3s ease;
-}
-
-.photo-upload-label:hover {
-  background: var(--text-primary);
-  transform: translateX(-50%) translateY(45%);
-}
-
-.photo-upload-label input {
-  display: none;
+.profile-avatar-initials {
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: #4F3422;
+  letter-spacing: -3px;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+  font-family: 'Outfit', sans-serif;
 }
 
 .profile-form {

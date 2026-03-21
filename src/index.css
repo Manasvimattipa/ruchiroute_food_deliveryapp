@@ -1,8 +1,8 @@
 :root {
   --bg-primary: #FAFAFA;
   --bg-secondary: #F7F7F7;
-  --accent-primary: #8B5E3C;
-  --accent-secondary: #A67C52;
+  --accent-primary: #D4A373; /* Earthen Tan */
+  --accent-secondary: #FAEDCD; /* Light Cream */
   --text-primary: #1A1A1A;
   --text-secondary: #555555;
   --card-bg: #FFFFFF;
@@ -103,4 +103,41 @@ body {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+/* Universal Navbar Profile Styles */
+.nav-profile-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 50px;
+}
+
+.nav-profile-wrapper:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.nav-avatar-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FEFAE0, #E6C9A8);
+  color: #4F3422;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid white;
+  font-family: 'Outfit', sans-serif;
+}
+
+.nav-username {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1rem;
 }

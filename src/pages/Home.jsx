@@ -189,12 +189,13 @@ const Home = () => {
             🛒 Cart <span className="cart-badge">{totalItems}</span>
           </button>
           
-          <div className="profile-section">
+          <div className="nav-profile-wrapper" onClick={() => navigate('/profile')}>
+            <div className="nav-avatar-circle">
+              {(userProfile?.displayName || 'U').charAt(0).toUpperCase()}
+            </div>
             <div className="nav-profile-info">
-              <span className="nav-username" onClick={() => navigate('/profile')}>
-                {userProfile?.displayName || 'User'}
-              </span>
-              <button className="nav-logout-link" onClick={handleLogout}>Log Out</button>
+              <span className="nav-username">{userProfile?.displayName || 'User'}</span>
+              <button className="nav-logout-link" onClick={(e) => { e.stopPropagation(); handleLogout(); }}>Log Out</button>
             </div>
           </div>
         </div>
